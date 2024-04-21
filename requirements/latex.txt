@@ -1,0 +1,14 @@
+zmienne (jedno- lub wieloliterowe)
++ - * / =(i różne) >= > < <= ∈ ⇔
+nawiasy
+potęgi, pierwiastki, ułamki, moduł
+suma
+logarytm
+granica
+całka
+macierze
+dwumian
+funkcja przedziałowa
+litery greckie (tym pi)
+dolne indeksy
+kwantyfikatory
