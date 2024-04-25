@@ -1,6 +1,16 @@
 grammar Prettier;
 
-prog: (inline | block)*;
+prog: (latex | component)* ;
+
+latex: inline | block ;
+
+component: 
+      info
+    | note
+    | deep
+    | warning
+    | youtube
+    ;
 
 inline: DOLLAR body DOLLAR ;
 
@@ -18,23 +28,22 @@ arithmetic_stat
 arithmetic_expr 
     : LPAREN arithmetic_expr RPAREN
     | arithmetic_expr operator arithmetic_expr
+    | base POWER exponent
     | arithmetic_sum 
     | arithmetic_prod
     | arithmetic_limit
     | function
-    | power
-    | index
     | signed_id_number_infinity
     ;
 
-// TODO - resolve, important
-// Very tought to check for lenght of 1, so always use {}
-power
-    : '{' arithmetic_expr '}^{' arithmetic_expr '}'
+base
+    : signed_id_number_infinity
+    | LCURLY arithmetic_expr RCURLY
     ;
 
-index
-    : '{' arithmetic_expr '}_{' NUMBER '}'
+exponent
+    : signed_id_number_infinity
+    | LCURLY arithmetic_expr RCURLY
     ;
 
 // Kind of arithmetic_expr
@@ -55,34 +64,47 @@ function
     : ID LPAREN arithmetic_expr RPAREN
     ;
 
-
 signed_id_number_infinity
-    : '-'? (ID | NUMBER | INFINITY)
+    : '-'?INFINITY
+    | signed_id_number
     ;
-
-// positive_id_number_infinity
-//     : ID | NUMBER | INFINITY
-//     ;
-
-// negative_id_number_infinity
-//     : '-'(ID | NUMBER | INFINITY)
-//     ;
 
 signed_id_number
-    : '-'? (ID | NUMBER)
+    : '-'? (ID | indexed_id | NUMBER)
     ;
 
-// positive_id_number
-//     : ID | NUMBER
-//     ;
-
-// negative_id_number
-//     : '-'(ID | NUMBER)
-//     ;
+indexed_id
+    : ('{' ID '}' | ID ) '_'
+      ('{' NUMBER '}' | NUMBER)
+    ;
 
 operator : PLUS | MIN | MULT | DIV;
 
+// Info component
+info : open_info TEXT+ close_info;
+open_info : '<Info title="' TEXT+ '">' ;
+close_info : '</Info>';
 
+// Note component
+note : open_note TEXT+ close_note; 
+open_note : '<Note title="' TEXT+ '">' ;
+close_note : '</Note>';
+
+// DeepDive component
+deep : open_deep TEXT+ close_deep; 
+open_deep : '<DeepDive title="' TEXT+ '">' ;
+close_deep : '</DeepDive>';
+
+// Warning  component
+warning : open_warning TEXT+ close_warning; 
+open_warning : '<Warning title="' TEXT+ '">' ;
+close_warning : '</Warning>';
+
+// YouTube  component
+youtube : open_youtube yt_content close_youtube; 
+open_youtube : '<YouTube title="' TEXT+ '" ' ;
+close_youtube : '/>';
+yt_content : 'linkOrId="' TEXT+ '" startSeconds="' NUMBER '" endSeconds="' NUMBER '" ' ;
 
 // Arithmetic
 COMPARATOR: '=' | '\\neq' | '\\pm' | '\\mp' | '\\geq' | '\\leq' | '>' | '<' | '\\approx';
@@ -92,6 +114,9 @@ MULT : '*' | '\\cdot' | '\\times' ;
 DIV : '/' | '\\div' ;
 LPAREN: '(';
 RPAREN: ')';
+LCURLY: '{';
+RCURLY: '}';
+POWER: '^';
 SUM: '\\sum';
 PROD: '\\prod';
 LIM: '\\lim';
@@ -133,6 +158,7 @@ ARCCOT : '\\arccot' ;
 COTH : '\\coth' ;
 
 // Text and symbols || when 2 lexer rules matches the same amount of characters, the first one is used
+TEXT: ID;
 ID : [a-zA-Z]+[0-9]* ;
 NUMBER : ([0-9]*[.])?[0-9]+ ;
 INFINITY: '\\infty';
